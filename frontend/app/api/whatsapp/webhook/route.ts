@@ -7,6 +7,8 @@ import { generateSimpleResponse } from "@/lib/chat-service";
 // Twilio envía los datos como application/x-www-form-urlencoded
 export async function POST(req: NextRequest) {
   try {
+    console.log("Webhook WhatsApp recibido");
+    console.log(req);
     const formData = await req.formData();
 
     // Extraer datos del mensaje de Twilio
