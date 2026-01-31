@@ -1,7 +1,7 @@
 "use server";
 
 import { connectDB } from "@/lib/db";
-import { Company, User, Conversation, Document, UsageLog } from "@/models";
+import { Company, User, Conversation, Document, UsageLog, Payment } from "@/models";
 import { getSession } from "@/lib/session";
 
 export interface AdminMetrics {
@@ -10,6 +10,8 @@ export interface AdminMetrics {
   conversations: number;
   documents: number;
   totalCost: number;
+  totalPayments: number;
+  balance: number;
 }
 
 export async function getAdminMetrics(): Promise<AdminMetrics> {
@@ -20,7 +22,7 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
 
   await connectDB();
 
-  const [companies, users, conversations, documents, costAgg] =
+  const [companies, users, conversations, documents, costAgg, paymentsAgg] =
     await Promise.all([
       Company.countDocuments(),
       User.countDocuments({ role: { $ne: "admin" } }),
@@ -29,9 +31,21 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
       UsageLog.aggregate([
         { $group: { _id: null, total: { $sum: "$cost" } } },
       ]),
+      Payment.aggregate([
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ]),
     ]);
 
   const totalCost = costAgg[0]?.total ?? 0;
+  const totalPayments = paymentsAgg[0]?.total ?? 0;
 
-  return { companies, users, conversations, documents, totalCost };
+  return {
+    companies,
+    users,
+    conversations,
+    documents,
+    totalCost,
+    totalPayments,
+    balance: totalPayments - totalCost,
+  };
 }

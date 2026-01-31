@@ -84,6 +84,19 @@ export interface IMessage {
 
 export type UsageType = "embedding" | "chat_completion" | "other";
 
+export type PaymentMethod = "transfer" | "card" | "cash" | "other";
+
+export interface IPayment {
+  _id: Types.ObjectId;
+  companyId: Types.ObjectId;
+  amount: number;
+  date: Date;
+  description?: string;
+  method?: PaymentMethod;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface IUsageLog {
   _id: Types.ObjectId;
   companyId?: Types.ObjectId;

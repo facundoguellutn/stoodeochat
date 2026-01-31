@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCompanyDetail } from "@/actions/admin/companies";
+import { getCompanyChartData } from "@/actions/admin/company-charts";
 import { UserFormDialog } from "@/components/admin/user-form-dialog";
 import { CompanyEditDialog } from "@/components/admin/company-edit-dialog";
 import { CompanyUsersTable } from "@/components/admin/company-users-table";
+import { PaymentFormDialog } from "@/components/admin/payment-form-dialog";
+import { CompanyDetailCharts } from "@/components/admin/company-detail-charts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,8 +20,12 @@ export default async function CompanyDetailPage({ params }: Props) {
   const { id } = await params;
 
   let detail;
+  let chartData;
   try {
-    detail = await getCompanyDetail(id);
+    [detail, chartData] = await Promise.all([
+      getCompanyDetail(id),
+      getCompanyChartData(id, "30d"),
+    ]);
   } catch {
     notFound();
   }
@@ -43,12 +50,13 @@ export default async function CompanyDetailPage({ params }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <PaymentFormDialog companyId={id} />
           <CompanyEditDialog company={company} />
           <UserFormDialog companyId={id} />
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Costo Total</CardTitle>
@@ -72,7 +80,28 @@ export default async function CompanyDetailPage({ params }: Props) {
             </CardContent>
           </Card>
         ))}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Balance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div
+              className={`text-2xl font-bold ${
+                chartData.balance.balance >= 0
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
+            >
+              ${chartData.balance.balance.toFixed(2)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Pagado: ${chartData.balance.totalPayments.toFixed(2)}
+            </p>
+          </CardContent>
+        </Card>
       </div>
+
+      <CompanyDetailCharts initialData={chartData} companyId={id} />
 
       <div>
         <h2 className="text-lg font-semibold mb-4">Usuarios</h2>

@@ -6,3 +6,4 @@ export { default as Chunk } from "./Chunk";
 export { default as Conversation } from "./Conversation";
 export { default as Message } from "./Message";
 export { default as UsageLog } from "./UsageLog";
+export { default as Payment } from "./Payment";
