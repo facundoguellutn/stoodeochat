@@ -68,8 +68,8 @@ INSTRUCCIONES:
   });
 
   // Registrar uso para control de costos
-  const inputTokens = result.usage?.promptTokens ?? 0;
-  const outputTokens = result.usage?.completionTokens ?? 0;
+  const inputTokens = result.usage?.inputTokens ?? 0;
+  const outputTokens = result.usage?.outputTokens ?? 0;
 
   await logUsage({
     companyId,
