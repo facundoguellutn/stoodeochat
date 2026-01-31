@@ -22,6 +22,7 @@ export interface CompanyChartData {
   costByType: Array<{ type: string; cost: number }>;
   conversationsOverTime: Array<{ date: string; count: number }>;
   activeUsersOverTime: Array<{ date: string; count: number }>;
+  whatsappOverTime: Array<{ date: string; count: number }>;
   balanceHistory: Array<{ date: string; cost: number; payments: number }>;
   balance: {
     totalCost: number;
@@ -54,6 +55,7 @@ export async function getCompanyChartData(
     costByType,
     conversationsOverTime,
     activeUsersOverTime,
+    whatsappOverTime,
     totalCostAgg,
     totalPaymentsAgg,
     costForBalance,
@@ -104,6 +106,19 @@ export async function getCompanyChartData(
       },
       { $project: { _id: 0, date: "$_id", count: { $size: "$users" } } },
       { $sort: { date: 1 } },
+    ]),
+
+    // WhatsApp messages over time
+    UsageLog.aggregate([
+      { $match: { companyId: companyOid, type: "whatsapp_message", createdAt: { $gte: startDate } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: mongoFormat, date: "$createdAt" } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+      { $project: { _id: 0, date: "$_id", count: 1 } },
     ]),
 
     // Total cost (all time)
@@ -172,6 +187,7 @@ export async function getCompanyChartData(
     costByType,
     conversationsOverTime,
     activeUsersOverTime,
+    whatsappOverTime,
     balanceHistory,
     balance: {
       totalCost: totalCostAgg[0]?.total ?? 0,

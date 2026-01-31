@@ -6,6 +6,7 @@ import { CostOverTimeChart } from "./charts/cost-over-time-chart";
 import { CostByTypeChart } from "./charts/cost-by-type-chart";
 import { ConversationsOverTimeChart } from "./charts/conversations-over-time-chart";
 import { ActiveUsersChart } from "./charts/active-users-chart";
+import { WhatsAppOverTimeChart } from "./charts/whatsapp-over-time-chart";
 import { IncomeVsCostChart } from "./charts/income-vs-cost-chart";
 import { PaymentDeleteDialog } from "./payment-delete-dialog";
 import {
@@ -80,6 +81,7 @@ export function CompanyDetailCharts({ initialData, companyId }: Props) {
             <ConversationsOverTimeChart data={data.conversationsOverTime} />
             <ActiveUsersChart data={data.activeUsersOverTime} />
           </div>
+          <WhatsAppOverTimeChart data={data.whatsappOverTime} />
         </TabsContent>
 
         <TabsContent value="financial" className="space-y-4 mt-4">

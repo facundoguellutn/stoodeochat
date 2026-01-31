@@ -9,6 +9,7 @@ export interface AdminMetrics {
   users: number;
   conversations: number;
   documents: number;
+  whatsappMessages: number;
   totalCost: number;
   totalPayments: number;
   balance: number;
@@ -22,12 +23,13 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
 
   await connectDB();
 
-  const [companies, users, conversations, documents, costAgg, paymentsAgg] =
+  const [companies, users, conversations, documents, whatsappMessages, costAgg, paymentsAgg] =
     await Promise.all([
       Company.countDocuments(),
       User.countDocuments({ role: { $ne: "admin" } }),
       Conversation.countDocuments(),
       Document.countDocuments(),
+      UsageLog.countDocuments({ type: "whatsapp_message" }),
       UsageLog.aggregate([
         { $group: { _id: null, total: { $sum: "$cost" } } },
       ]),
@@ -44,6 +46,7 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
     users,
     conversations,
     documents,
+    whatsappMessages,
     totalCost,
     totalPayments,
     balance: totalPayments - totalCost,

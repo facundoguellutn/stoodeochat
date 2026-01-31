@@ -15,7 +15,7 @@ const UsageLogSchema = new Schema<IUsageLog>({
   },
   type: {
     type: String,
-    enum: ["embedding", "chat_completion", "other"],
+    enum: ["embedding", "chat_completion", "whatsapp_message", "other"],
     required: true,
     index: true,
   },

@@ -83,7 +83,7 @@ export interface IMessage {
   createdAt: Date;
 }
 
-export type UsageType = "embedding" | "chat_completion" | "other";
+export type UsageType = "embedding" | "chat_completion" | "whatsapp_message" | "other";
 
 export type PaymentMethod = "transfer" | "card" | "cash" | "other";
 

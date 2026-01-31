@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models";
 import { createTwiMLResponse, extractPhoneNumber } from "@/lib/twilio";
 import { generateSimpleResponse } from "@/lib/chat-service";
+import { logWhatsAppUsage } from "@/lib/costs";
 
 // Twilio envía los datos como application/x-www-form-urlencoded
 export async function POST(req: NextRequest) {
@@ -69,6 +70,17 @@ export async function POST(req: NextRequest) {
       user.companyId.toString(),
       user._id.toString()
     );
+
+    // Loguear costos de WhatsApp (inbound + outbound)
+    const usageParams = {
+      companyId: user.companyId.toString(),
+      userId: user._id.toString(),
+      messageSid,
+    };
+    await Promise.all([
+      logWhatsAppUsage({ ...usageParams, direction: "inbound" as const }),
+      logWhatsAppUsage({ ...usageParams, direction: "outbound" as const }),
+    ]);
 
     // Twilio tiene un límite de 1600 caracteres por mensaje
     const truncatedResponse = response.length > 1500

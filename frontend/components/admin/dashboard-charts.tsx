@@ -7,6 +7,7 @@ import { CostByTypeChart } from "./charts/cost-by-type-chart";
 import { TopCompaniesChart } from "./charts/top-companies-chart";
 import { ConversationsOverTimeChart } from "./charts/conversations-over-time-chart";
 import { UserGrowthChart } from "./charts/user-growth-chart";
+import { WhatsAppOverTimeChart } from "./charts/whatsapp-over-time-chart";
 import { IncomeVsCostChart } from "./charts/income-vs-cost-chart";
 import { BalanceTable } from "./charts/balance-table";
 import {
@@ -64,6 +65,7 @@ export function DashboardCharts({ initialData }: Props) {
             <ConversationsOverTimeChart data={data.conversationsOverTime} />
             <UserGrowthChart data={data.userGrowth} />
           </div>
+          <WhatsAppOverTimeChart data={data.whatsappOverTime} />
         </TabsContent>
 
         <TabsContent value="financial" className="space-y-4 mt-4">

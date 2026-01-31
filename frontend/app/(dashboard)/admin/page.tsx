@@ -2,6 +2,7 @@ import {
   Building2,
   DollarSign,
   FileText,
+  MessageCircle,
   MessageSquare,
   Users,
   TrendingUp,
@@ -27,6 +28,11 @@ export default async function AdminPage() {
       icon: MessageSquare,
     },
     { label: "Documentos", value: metrics.documents.toString(), icon: FileText },
+    {
+      label: "Mensajes WhatsApp",
+      value: metrics.whatsappMessages.toString(),
+      icon: MessageCircle,
+    },
     {
       label: "Costo Total",
       value: `$${metrics.totalCost.toFixed(4)}`,

@@ -28,6 +28,34 @@ export function calculateCost(
   return inputCost + outputCost;
 }
 
+// Cost per WhatsApp message (USD) — covers Twilio fee + estimated Meta conversation fee
+export const WHATSAPP_MESSAGE_COST = 0.01;
+
+export async function logWhatsAppUsage(params: {
+  companyId: string;
+  userId: string;
+  messageSid?: string;
+  direction: "inbound" | "outbound";
+}): Promise<void> {
+  await connectDB();
+
+  await UsageLog.create({
+    companyId: params.companyId,
+    userId: params.userId,
+    type: "whatsapp_message",
+    model: "twilio-whatsapp",
+    inputTokens: 0,
+    outputTokens: 0,
+    totalTokens: 0,
+    cost: WHATSAPP_MESSAGE_COST,
+    metadata: {
+      source: "whatsapp-webhook",
+      messageSid: params.messageSid,
+      direction: params.direction,
+    },
+  });
+}
+
 export async function logUsage(params: {
   companyId?: string;
   userId: string;

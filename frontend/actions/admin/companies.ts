@@ -68,15 +68,18 @@ export async function getCompanyDetail(id: string) {
     .sort({ createdAt: -1 })
     .lean();
 
-  const costAgg = await UsageLog.aggregate([
-    { $match: { companyId: company._id } },
-    {
-      $group: {
-        _id: "$type",
-        total: { $sum: "$cost" },
-        totalTokens: { $sum: "$totalTokens" },
+  const [costAgg, whatsappMessages] = await Promise.all([
+    UsageLog.aggregate([
+      { $match: { companyId: company._id } },
+      {
+        $group: {
+          _id: "$type",
+          total: { $sum: "$cost" },
+          totalTokens: { $sum: "$totalTokens" },
+        },
       },
-    },
+    ]),
+    UsageLog.countDocuments({ companyId: company._id, type: "whatsapp_message" }),
   ]);
 
   const costByType: Record<string, { cost: number; tokens: number }> = {};
@@ -107,6 +110,7 @@ export async function getCompanyDetail(id: string) {
       total: totalCost,
       byType: costByType,
     },
+    whatsappMessages,
   };
 }
 

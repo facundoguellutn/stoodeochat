@@ -14,12 +14,14 @@ import {
 const chartConfig = {
   embedding: { label: "Embedding", color: "var(--chart-1)" },
   chat_completion: { label: "Chat", color: "var(--chart-2)" },
+  whatsapp_message: { label: "WhatsApp", color: "var(--chart-4)" },
   other: { label: "Otro", color: "var(--chart-3)" },
 } satisfies ChartConfig;
 
 const COLORS: Record<string, string> = {
   embedding: "var(--color-embedding)",
   chat_completion: "var(--color-chat_completion)",
+  whatsapp_message: "var(--color-whatsapp_message)",
   other: "var(--color-other)",
 };
 

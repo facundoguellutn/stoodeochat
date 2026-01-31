@@ -35,6 +35,7 @@ export interface AdminChartData {
     totalPayments: number;
     balance: number;
   }>;
+  whatsappOverTime: Array<{ date: string; count: number }>;
   incomeVsCostOverTime: Array<{
     date: string;
     cost: number;
@@ -58,6 +59,7 @@ export async function getAdminChartData(
     topCompaniesByCost,
     conversationsOverTime,
     userGrowth,
+    whatsappOverTime,
     totalCostAgg,
     totalPaymentsAgg,
     costsPerCompany,
@@ -135,7 +137,20 @@ export async function getAdminChartData(
       { $project: { _id: 0, date: "$_id", count: 1 } },
     ]),
 
-    // 6. Total cost (all time)
+    // 6. WhatsApp messages over time
+    UsageLog.aggregate([
+      { $match: { type: "whatsapp_message", createdAt: { $gte: startDate } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: mongoFormat, date: "$createdAt" } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+      { $project: { _id: 0, date: "$_id", count: 1 } },
+    ]),
+
+    // 7. Total cost (all time)
     UsageLog.aggregate([
       { $group: { _id: null, total: { $sum: "$cost" } } },
     ]),
@@ -246,6 +261,7 @@ export async function getAdminChartData(
     topCompaniesByCost,
     conversationsOverTime,
     userGrowth,
+    whatsappOverTime,
     globalBalance: {
       totalCost: totalCostAgg[0]?.total ?? 0,
       totalPayments: totalPaymentsAgg[0]?.total ?? 0,

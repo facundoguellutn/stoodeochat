@@ -10,7 +10,7 @@ import { CompanyDetailCharts } from "@/components/admin/company-detail-charts";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MessageCircle } from "lucide-react";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -30,7 +30,7 @@ export default async function CompanyDetailPage({ params }: Props) {
     notFound();
   }
 
-  const { company, users, costs } = detail;
+  const { company, users, costs, whatsappMessages } = detail;
 
   return (
     <div className="p-6 space-y-6">
@@ -80,6 +80,15 @@ export default async function CompanyDetailPage({ params }: Props) {
             </CardContent>
           </Card>
         ))}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Mensajes WhatsApp</CardTitle>
+            <MessageCircle className="size-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{whatsappMessages}</div>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Balance</CardTitle>
