@@ -42,7 +42,7 @@ export function UserGrowthChart({ data }: Props) {
             />
             <YAxis tickLine={false} axisLine={false} />
             <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+            <Bar dataKey="count" fill="var(--color-count)" radius={4} maxBarSize={40}/>
           </BarChart>
         </ChartContainer>
       </CardContent>
