@@ -31,6 +31,7 @@ export function UserFormDialog({ companyId }: UserFormDialogProps) {
   const [open, setOpen] = useState(false);
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
+  const [telefono, setTelefono] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"gestor" | "usuario">("usuario");
   const [loading, setLoading] = useState(false);
@@ -45,6 +46,7 @@ export function UserFormDialog({ companyId }: UserFormDialogProps) {
       await createUserForCompany({
         nombre,
         email,
+        telefono,
         password,
         role,
         companyId,
@@ -52,6 +54,7 @@ export function UserFormDialog({ companyId }: UserFormDialogProps) {
       setOpen(false);
       setNombre("");
       setEmail("");
+      setTelefono("");
       setPassword("");
       setRole("usuario");
       router.refresh();
@@ -95,6 +98,20 @@ export function UserFormDialog({ companyId }: UserFormDialogProps) {
               placeholder="usuario@empresa.com"
               required
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="telefono">Teléfono (WhatsApp)</Label>
+            <Input
+              id="telefono"
+              type="tel"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              placeholder="+54 9 11 1234-5678"
+              required
+            />
+            <p className="text-xs text-muted-foreground">
+              Formato internacional con código de país
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Contraseña</Label>

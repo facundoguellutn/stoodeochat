@@ -6,6 +6,14 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true, select: false },
     nombre: { type: String, required: true },
+    telefono: {
+      type: String,
+      unique: true,
+      sparse: true, // Permite nulls pero unique cuando existe
+      required: function (this: IUser) {
+        return this.role !== "admin"; // Obligatorio para usuarios no-admin
+      },
+    },
     companyId: {
       type: Schema.Types.ObjectId,
       ref: "Company",

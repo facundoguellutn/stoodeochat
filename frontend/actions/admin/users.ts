@@ -18,6 +18,7 @@ export async function createUserForCompany(data: {
   nombre: string;
   email: string;
   password: string;
+  telefono: string;
   role: "gestor" | "usuario";
   companyId: string;
 }) {
@@ -30,12 +31,19 @@ export async function createUserForCompany(data: {
   const existing = await User.findOne({ email: data.email.toLowerCase() }).lean();
   if (existing) throw new Error("El email ya está registrado");
 
+  // Normalizar teléfono (remover espacios y guiones, mantener el +)
+  const normalizedPhone = data.telefono.replace(/[\s\-()]/g, "");
+  
+  const existingPhone = await User.findOne({ telefono: normalizedPhone }).lean();
+  if (existingPhone) throw new Error("El teléfono ya está registrado");
+
   const hashedPassword = await hashPassword(data.password);
 
   const user = await User.create({
     nombre: data.nombre,
     email: data.email.toLowerCase(),
     password: hashedPassword,
+    telefono: normalizedPhone,
     role: data.role,
     companyId: data.companyId,
     activo: true,
@@ -45,6 +53,7 @@ export async function createUserForCompany(data: {
     _id: user._id.toString(),
     email: user.email,
     nombre: user.nombre,
+    telefono: user.telefono,
     role: user.role,
   };
 }
@@ -62,6 +71,7 @@ export async function getCompanyUsers(companyId: string) {
     _id: u._id.toString(),
     email: u.email,
     nombre: u.nombre,
+    telefono: u.telefono,
     role: u.role,
     activo: u.activo,
     createdAt: u.createdAt.toISOString(),
@@ -92,6 +102,7 @@ export async function getUsers(filters?: {
     _id: u._id.toString(),
     email: u.email,
     nombre: u.nombre,
+    telefono: u.telefono,
     role: u.role,
     activo: u.activo,
     companyName: (u.companyId as unknown as { nombre: string })?.nombre ?? "—",
@@ -105,6 +116,7 @@ export async function updateUser(
   data: {
     nombre?: string;
     email?: string;
+    telefono?: string;
     role?: "gestor" | "usuario";
     activo?: boolean;
     password?: string;
@@ -132,6 +144,15 @@ export async function updateUser(
     }
   }
 
+  if (data.telefono !== undefined) {
+    const normalizedPhone = data.telefono.replace(/[\s\-()]/g, "");
+    if (normalizedPhone !== user.telefono) {
+      const existingPhone = await User.findOne({ telefono: normalizedPhone, _id: { $ne: id } }).lean();
+      if (existingPhone) throw new Error("El teléfono ya está registrado");
+      updateData.telefono = normalizedPhone;
+    }
+  }
+
   if (data.password) {
     updateData.password = await hashPassword(data.password);
   }
@@ -146,6 +167,7 @@ export async function updateUser(
     _id: updated._id.toString(),
     email: updated.email,
     nombre: updated.nombre,
+    telefono: updated.telefono,
     role: updated.role,
     activo: updated.activo,
   };

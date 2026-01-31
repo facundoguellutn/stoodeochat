@@ -21,6 +21,7 @@ export interface IUser {
   email: string;
   password: string;
   nombre: string;
+  telefono?: string; // Obligatorio para no-admin, opcional en el type
   companyId?: Types.ObjectId;
   role: UserRole;
   activo: boolean;

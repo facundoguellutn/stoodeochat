@@ -27,6 +27,7 @@ interface UserEditDialogProps {
     _id: string;
     nombre: string;
     email: string;
+    telefono?: string;
     role: string;
     activo: boolean;
   };
@@ -38,6 +39,7 @@ export function UserEditDialog({ user, onSuccess }: UserEditDialogProps) {
   const [open, setOpen] = useState(false);
   const [nombre, setNombre] = useState(user.nombre);
   const [email, setEmail] = useState(user.email);
+  const [telefono, setTelefono] = useState(user.telefono || "");
   const [role, setRole] = useState<"gestor" | "usuario">(
     user.role as "gestor" | "usuario"
   );
@@ -51,6 +53,7 @@ export function UserEditDialog({ user, onSuccess }: UserEditDialogProps) {
     if (value) {
       setNombre(user.nombre);
       setEmail(user.email);
+      setTelefono(user.telefono || "");
       setRole(user.role as "gestor" | "usuario");
       setActivo(user.activo ? "true" : "false");
       setPassword("");
@@ -67,6 +70,7 @@ export function UserEditDialog({ user, onSuccess }: UserEditDialogProps) {
       await updateUser(user._id, {
         nombre,
         email,
+        telefono,
         role,
         activo: activo === "true",
         ...(password ? { password } : {}),
@@ -111,6 +115,20 @@ export function UserEditDialog({ user, onSuccess }: UserEditDialogProps) {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-telefono">Teléfono (WhatsApp)</Label>
+            <Input
+              id="edit-telefono"
+              type="tel"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              placeholder="+54 9 11 1234-5678"
+              required
+            />
+            <p className="text-xs text-muted-foreground">
+              Formato internacional con código de país
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="edit-role">Rol</Label>
