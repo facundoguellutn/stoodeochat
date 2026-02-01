@@ -70,3 +70,35 @@ export function validateTwilioSignature(
 export function extractPhoneNumber(whatsappId: string): string {
   return whatsappId.replace("whatsapp:", "");
 }
+
+/**
+ * Convierte markdown estándar al formato de texto de WhatsApp
+ * WhatsApp soporta: *negrita*, _cursiva_, ~tachado~, ```código```
+ * 
+ * Conversiones:
+ * - ### Título -> *Título* (headers a negrita)
+ * - **texto** -> *texto* (negrita markdown a WhatsApp)
+ * - - item / * item -> • item (bullets con unicode)
+ * - Reduce saltos de línea excesivos
+ * 
+ * @param markdown Texto con formato markdown
+ * @returns Texto formateado para WhatsApp
+ */
+export function formatForWhatsApp(markdown: string): string {
+  let text = markdown;
+
+  // Headers (### Título) -> *Título* con salto de línea
+  text = text.replace(/^#{1,6}\s+(.+)$/gm, "*$1*\n");
+
+  // Negrita **texto** -> *texto* (hacer antes de listas para no afectar bullets)
+  text = text.replace(/\*\*(.+?)\*\*/g, "*$1*");
+
+  // Listas con - o * al inicio de línea -> bullet •
+  // Usa lookahead para asegurar que hay contenido después
+  text = text.replace(/^[\-\*]\s+(?=\S)/gm, "• ");
+
+  // Reducir múltiples saltos de línea (3+ -> 2)
+  text = text.replace(/\n{3,}/g, "\n\n");
+
+  return text.trim();
+}

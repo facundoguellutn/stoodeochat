@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models";
-import { createTwiMLResponse, extractPhoneNumber } from "@/lib/twilio";
+import { createTwiMLResponse, extractPhoneNumber, formatForWhatsApp } from "@/lib/twilio";
 import { generateSimpleResponse } from "@/lib/chat-service";
 import { logWhatsAppUsage } from "@/lib/costs";
 
@@ -82,10 +82,11 @@ export async function POST(req: NextRequest) {
       logWhatsAppUsage({ ...usageParams, direction: "outbound" as const }),
     ]);
 
-    // Twilio tiene un límite de 1600 caracteres por mensaje
-    const truncatedResponse = response.length > 1500
-      ? response.substring(0, 1500) + "..."
-      : response;
+    // Convertir markdown a formato WhatsApp y truncar si es necesario
+    const formattedResponse = formatForWhatsApp(response);
+    const truncatedResponse = formattedResponse.length > 1500
+      ? formattedResponse.substring(0, 1500) + "..."
+      : formattedResponse;
 
     console.log(`WhatsApp respuesta enviada a ${phoneNumber} (${truncatedResponse.length} chars)`);
 
