@@ -129,7 +129,7 @@ export function DocumentsClient({ initialDocuments }: DocumentsClientProps) {
               Arrastra un archivo aquí o haz clic para seleccionar
             </p>
             <p className="text-sm text-muted-foreground">
-              Formatos permitidos: .txt, .pdf, .docx (max 10MB)
+              Formatos permitidos: .txt, .pdf, .docx, .md (max 10MB)
             </p>
           </div>
           <Button
@@ -142,7 +142,7 @@ export function DocumentsClient({ initialDocuments }: DocumentsClientProps) {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".txt,.pdf,.docx"
+            accept=".txt,.pdf,.docx,.md"
             className="hidden"
             onChange={handleFileChange}
           />

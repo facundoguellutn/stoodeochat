@@ -19,7 +19,7 @@ import {
   Zap,
   Smartphone,
 } from "lucide-react";
-import { IconPdf, IconWord, IconGoogleDocs, IconTxt } from "@/components/icons";
+import { IconPdf, IconWord, IconGoogleDocs, IconTxt, IconNotion } from "@/components/icons";
 
 export default function LandingPage() {
   return (
@@ -80,37 +80,170 @@ export default function LandingPage() {
             <h2 className="text-3xl font-bold text-center mb-12">
               Tres pasos para empezar
             </h2>
-            <div className="grid gap-8 md:grid-cols-3">
+            {/* Global animations */}
+            <style>{`
+              /* Step 1 - Floating icons */
+              @keyframes float-1 {
+                0%, 100% { transform: translateY(0) rotate(-12deg); }
+                50% { transform: translateY(-8px) rotate(-8deg); }
+              }
+              @keyframes float-2 {
+                0%, 100% { transform: translateY(0) rotate(8deg); }
+                50% { transform: translateY(-10px) rotate(12deg); }
+              }
+              @keyframes float-3 {
+                0%, 100% { transform: translateY(0) rotate(15deg); }
+                50% { transform: translateY(-6px) rotate(18deg); }
+              }
+              @keyframes float-4 {
+                0%, 100% { transform: translateY(0) rotate(-8deg); }
+                50% { transform: translateY(-12px) rotate(-5deg); }
+              }
+              @keyframes float-5 {
+                0%, 100% { transform: translateY(0) rotate(5deg); }
+                50% { transform: translateY(-7px) rotate(10deg); }
+              }
+              .float-icon-1 { animation: float-1 3s ease-in-out infinite; }
+              .float-icon-2 { animation: float-2 3.5s ease-in-out infinite 0.2s; }
+              .float-icon-3 { animation: float-3 2.8s ease-in-out infinite 0.5s; }
+              .float-icon-4 { animation: float-4 3.2s ease-in-out infinite 0.3s; }
+              .float-icon-5 { animation: float-5 3.8s ease-in-out infinite 0.7s; }
+              
+              /* Step 2 - Processing animations (12s total cycle: 3 files x 4s each) */
+              @keyframes progress-fill-slow {
+                0% { width: 0%; }
+                80% { width: 95%; }
+                95%, 100% { width: 100%; }
+              }
+              @keyframes pulse-glow {
+                0%, 100% { opacity: 0.5; transform: scale(1); }
+                50% { opacity: 1; transform: scale(1.1); }
+              }
+              @keyframes slide-in-chunk {
+                0% { opacity: 0; transform: translateX(-10px); }
+                100% { opacity: 1; transform: translateX(0); }
+              }
+              @keyframes sparkle-spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+              /* File cycling animations - 12s total, each file visible for ~4s */
+              @keyframes file-cycle-1 {
+                0%, 2% { opacity: 0; transform: translateY(5px); }
+                5%, 30% { opacity: 1; transform: translateY(0); }
+                33%, 100% { opacity: 0; transform: translateY(-5px); }
+              }
+              @keyframes file-cycle-2 {
+                0%, 33% { opacity: 0; transform: translateY(5px); }
+                36%, 63% { opacity: 1; transform: translateY(0); }
+                66%, 100% { opacity: 0; transform: translateY(-5px); }
+              }
+              @keyframes file-cycle-3 {
+                0%, 66% { opacity: 0; transform: translateY(5px); }
+                69%, 96% { opacity: 1; transform: translateY(0); }
+                99%, 100% { opacity: 0; transform: translateY(-5px); }
+              }
+              .progress-animated {
+                animation: progress-fill-slow 4s ease-in-out infinite;
+              }
+              .file-1 { animation: file-cycle-1 12s ease-in-out infinite; }
+              .file-2 { animation: file-cycle-2 12s ease-in-out infinite; opacity: 0; }
+              .file-3 { animation: file-cycle-3 12s ease-in-out infinite; opacity: 0; }
+              .chunk-1 { animation: slide-in-chunk 0.5s ease-out forwards; }
+              .chunk-2 { animation: slide-in-chunk 0.5s ease-out 0.3s forwards; opacity: 0; }
+              .chunk-3 { animation: slide-in-chunk 0.5s ease-out 0.6s forwards; opacity: 0; }
+              .sparkle-pulse { animation: pulse-glow 2s ease-in-out infinite; }
+              .sparkle-spin { animation: sparkle-spin 4s linear infinite; }
+              
+              /* Step 3 - Chat animations */
+              @keyframes message-appear {
+                0% { opacity: 0; transform: translateY(10px) scale(0.95); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+              }
+              @keyframes typing-dots {
+                0%, 20% { opacity: 0.3; }
+                50% { opacity: 1; }
+                80%, 100% { opacity: 0.3; }
+              }
+              .message-1 { animation: message-appear 0.4s ease-out forwards; }
+              .message-2 { animation: message-appear 0.4s ease-out 1s forwards; opacity: 0; }
+              .typing-dot-1 { animation: typing-dots 1.4s ease-in-out infinite; }
+              .typing-dot-2 { animation: typing-dots 1.4s ease-in-out 0.2s infinite; }
+              .typing-dot-3 { animation: typing-dots 1.4s ease-in-out 0.4s infinite; }
+              
+              /* Arrow animation */
+              @keyframes arrow-pulse {
+                0%, 100% { opacity: 0.4; transform: translateX(0); }
+                50% { opacity: 1; transform: translateX(4px); }
+              }
+              .arrow-animated { animation: arrow-pulse 2s ease-in-out infinite; }
+            `}</style>
+
+            <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr_auto_1fr] items-start">
               {/* Paso 1: Subí tus documentos */}
               <div className="flex flex-col">
                 <div className="relative rounded-2xl border bg-card overflow-hidden p-6 h-[280px]">
-                  <div className="absolute top-3 left-3 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                  <div className="absolute top-3 left-3 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold z-10">
                     1
                   </div>
-                  <div className="mt-6 space-y-4">
-                    {/* Dropzone simulada */}
-                    <div className="flex flex-col items-center gap-3 rounded-xl border-2 border-dashed border-muted-foreground/25 p-6">
-                      <FileUp className="size-8 text-muted-foreground/50" />
-                      <p className="text-sm text-muted-foreground">Arrastrá tus archivos acá</p>
+                  
+                  <div className="relative h-full flex items-center justify-center mt-4">
+                    {/* Floating PDF - left side */}
+                    <div className="float-icon-1 absolute -left-2 top-8 z-10">
+                      <div className="flex flex-col items-center bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-2 border">
+                        <div className="bg-red-500/10 rounded-md p-1.5">
+                          <IconPdf width={28} height={28} className="text-red-500" />
+                        </div>
+                        <span className="text-[9px] font-bold text-red-500 mt-1">.PDF</span>
+                      </div>
+                      <div className="text-[8px] text-muted-foreground mt-0.5 text-center truncate max-w-[60px]">manual.pdf</div>
                     </div>
-                    {/* Grid de formatos */}
-                    <div className="grid grid-cols-4 gap-3">
-                      <div className="flex flex-col items-center gap-1.5 rounded-lg bg-muted/50 p-2.5">
-                        <IconPdf width={20} height={20} className="text-red-500" />
-                        <span className="text-[11px] text-muted-foreground font-medium">PDF</span>
+                    
+                    {/* Floating Word - top right */}
+                    <div className="float-icon-2 absolute right-0 top-2 z-10">
+                      <div className="flex flex-col items-center bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-2 border">
+                        <div className="bg-blue-500/10 rounded-md p-1.5">
+                          <IconWord width={28} height={28} />
+                        </div>
+                        <span className="text-[9px] font-bold text-blue-600 mt-1">.DOCX</span>
                       </div>
-                      <div className="flex flex-col items-center gap-1.5 rounded-lg bg-muted/50 p-2.5">
-                        <IconWord width={20} height={20} />
-                        <span className="text-[11px] text-muted-foreground font-medium">Word</span>
+                      <div className="text-[8px] text-muted-foreground mt-0.5 text-center truncate max-w-[60px]">guia.docx</div>
+                    </div>
+                    
+                    {/* Floating Notion - bottom left */}
+                    <div className="float-icon-3 absolute left-1 bottom-2 z-10">
+                      <div className="flex flex-col items-center bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-2 border">
+                        <div className="bg-zinc-100 dark:bg-zinc-700 rounded-md p-1.5">
+                          <IconNotion width={28} height={28} />
+                        </div>
+                        <span className="text-[9px] font-bold text-zinc-700 dark:text-zinc-300 mt-1">Notion</span>
                       </div>
-                      <div className="flex flex-col items-center gap-1.5 rounded-lg bg-muted/50 p-2.5">
-                        <IconGoogleDocs width={20} height={20} className="text-blue-500" />
-                        <span className="text-[11px] text-muted-foreground font-medium">Docs</span>
+                    </div>
+                    
+                    {/* Floating Google Docs - bottom right */}
+                    <div className="float-icon-4 absolute right-2 bottom-6 z-10">
+                      <div className="flex flex-col items-center bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-2 border">
+                        <div className="bg-blue-500/10 rounded-md p-1.5">
+                          <IconGoogleDocs width={28} height={28} className="text-blue-500" />
+                        </div>
+                        <span className="text-[9px] font-bold text-blue-500 mt-1">.DOCS</span>
                       </div>
-                      <div className="flex flex-col items-center gap-1.5 rounded-lg bg-muted/50 p-2.5">
-                        <IconTxt width={20} height={20} className="text-muted-foreground" />
-                        <span className="text-[11px] text-muted-foreground font-medium">TXT</span>
+                    </div>
+                    
+                    {/* Floating TXT - top center */}
+                    <div className="float-icon-5 absolute left-1/2 -translate-x-1/2 -top-1 z-10">
+                      <div className="flex flex-col items-center bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-2 border">
+                        <div className="bg-gray-100 dark:bg-zinc-700 rounded-md p-1.5">
+                          <IconTxt width={24} height={24} className="text-gray-600 dark:text-gray-400" />
+                        </div>
+                        <span className="text-[9px] font-bold text-gray-600 dark:text-gray-400 mt-1">.TXT</span>
                       </div>
+                    </div>
+                    
+                    {/* Central dropzone */}
+                    <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-muted-foreground/30 bg-muted/20 px-6 py-4 backdrop-blur-sm">
+                      <FileUp className="size-6 text-muted-foreground/60" />
+                      <p className="text-xs text-muted-foreground">Arrastrá o elegí archivos</p>
                     </div>
                   </div>
                 </div>
@@ -120,35 +253,84 @@ export default function LandingPage() {
                 </p>
               </div>
 
+              {/* Arrow 1-2 */}
+              <div className="hidden md:flex items-center justify-center h-[280px]">
+                <div className="arrow-animated flex items-center gap-1 text-muted-foreground/60">
+                  <div className="w-8 h-0.5 bg-linear-to-r from-muted-foreground/20 to-muted-foreground/60 rounded-full" />
+                  <ArrowRight className="size-5" />
+                </div>
+              </div>
+
               {/* Paso 2: La IA aprende */}
               <div className="flex flex-col">
                 <div className="relative rounded-2xl border bg-card overflow-hidden p-6 h-[280px]">
-                  <div className="absolute top-3 left-3 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                  <div className="absolute top-3 left-3 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold z-10">
                     2
                   </div>
                   <div className="mt-6 space-y-4">
-                    {/* Documento siendo procesado */}
-                    <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
-                      <IconPdf width={18} height={18} className="shrink-0 text-red-500" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">Manual de devoluciones.pdf</p>
-                        <div className="mt-1.5 h-1.5 w-full rounded-full bg-muted">
-                          <div className="h-full w-3/4 rounded-full bg-primary" />
+                    {/* Documentos siendo procesados - ciclan entre 3 archivos */}
+                    <div className="relative h-[52px]">
+                      {/* Archivo 1: PDF */}
+                      <div className="file-1 absolute inset-0 flex items-center gap-3 rounded-lg bg-muted/50 p-3">
+                        <div className="relative">
+                          <IconPdf width={18} height={18} className="shrink-0 text-red-500" />
+                          <div className="absolute -top-1 -right-1 size-2 rounded-full bg-primary sparkle-pulse" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">Manual de devoluciones.pdf</p>
+                          <div className="mt-1.5 h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                            <div className="h-full rounded-full bg-primary progress-animated" />
+                          </div>
+                        </div>
+                      </div>
+                      {/* Archivo 2: Word */}
+                      <div className="file-2 absolute inset-0 flex items-center gap-3 rounded-lg bg-muted/50 p-3">
+                        <div className="relative">
+                          <IconWord width={18} height={18} className="shrink-0" />
+                          <div className="absolute -top-1 -right-1 size-2 rounded-full bg-primary sparkle-pulse" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">Guía de onboarding.docx</p>
+                          <div className="mt-1.5 h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                            <div className="h-full rounded-full bg-primary progress-animated" style={{ animationDelay: '4s' }} />
+                          </div>
+                        </div>
+                      </div>
+                      {/* Archivo 3: Notion */}
+                      <div className="file-3 absolute inset-0 flex items-center gap-3 rounded-lg bg-muted/50 p-3">
+                        <div className="relative">
+                          <IconNotion width={18} height={18} className="shrink-0" />
+                          <div className="absolute -top-1 -right-1 size-2 rounded-full bg-primary sparkle-pulse" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">Políticas de la empresa</p>
+                          <div className="mt-1.5 h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                            <div className="h-full rounded-full bg-primary progress-animated" style={{ animationDelay: '8s' }} />
+                          </div>
                         </div>
                       </div>
                     </div>
-                    {/* Chunks extraídos */}
+                    {/* Chunks extraídos con animación */}
                     <div className="space-y-2">
-                      {[
-                        "El plazo de devolución es de 30 días...",
-                        "Para iniciar una devolución, contactar...",
-                        "Los productos deben estar sin uso y en...",
-                      ].map((text) => (
-                        <div key={text} className="flex items-start gap-2 rounded-lg bg-muted/30 px-3 py-2">
-                          <Sparkles className="size-3.5 shrink-0 mt-0.5 text-primary" />
-                          <p className="text-xs text-muted-foreground truncate">{text}</p>
-                        </div>
-                      ))}
+                      <div className="chunk-1 flex items-start gap-2 rounded-lg bg-muted/30 px-3 py-2">
+                        <Sparkles className="size-3.5 shrink-0 mt-0.5 text-primary sparkle-pulse" />
+                        <p className="text-xs text-muted-foreground truncate">El plazo de devolución es de 30 días...</p>
+                      </div>
+                      <div className="chunk-2 flex items-start gap-2 rounded-lg bg-muted/30 px-3 py-2">
+                        <Sparkles className="size-3.5 shrink-0 mt-0.5 text-primary sparkle-pulse" style={{ animationDelay: '0.3s' }} />
+                        <p className="text-xs text-muted-foreground truncate">Para iniciar una devolución, contactar...</p>
+                      </div>
+                      <div className="chunk-3 flex items-start gap-2 rounded-lg bg-muted/30 px-3 py-2">
+                        <Sparkles className="size-3.5 shrink-0 mt-0.5 text-primary sparkle-pulse" style={{ animationDelay: '0.6s' }} />
+                        <p className="text-xs text-muted-foreground truncate">Los productos deben estar sin uso y en...</p>
+                      </div>
+                    </div>
+                    {/* Processing indicator */}
+                    <div className="flex items-center justify-center gap-2 pt-2">
+                      <div className="sparkle-spin">
+                        <Sparkles className="size-4 text-primary" />
+                      </div>
+                      <span className="text-xs text-muted-foreground">Procesando información...</span>
                     </div>
                   </div>
                 </div>
@@ -158,15 +340,23 @@ export default function LandingPage() {
                 </p>
               </div>
 
+              {/* Arrow 2-3 */}
+              <div className="hidden md:flex items-center justify-center h-[280px]">
+                <div className="arrow-animated flex items-center gap-1 text-muted-foreground/60" style={{ animationDelay: '0.5s' }}>
+                  <div className="w-8 h-0.5 bg-linear-to-r from-muted-foreground/20 to-muted-foreground/60 rounded-full" />
+                  <ArrowRight className="size-5" />
+                </div>
+              </div>
+
               {/* Paso 3: Tu equipo pregunta */}
               <div className="flex flex-col">
                 <div className="relative rounded-2xl border bg-card overflow-hidden p-6 h-[280px]">
-                  <div className="absolute top-3 left-3 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                  <div className="absolute top-3 left-3 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold z-10">
                     3
                   </div>
-                  <div className="mt-6 space-y-2">
+                  <div className="mt-6 space-y-3">
                     {/* User message */}
-                    <div className="flex gap-2 justify-end">
+                    <div className="message-1 flex gap-2 justify-end">
                       <div className="rounded-2xl rounded-br-md bg-primary text-primary-foreground px-3 py-2 text-xs max-w-[80%]">
                         ¿Cuál es la política de devolución?
                       </div>
@@ -174,8 +364,21 @@ export default function LandingPage() {
                         <User className="size-3" />
                       </div>
                     </div>
+                    {/* Typing indicator (shows briefly) */}
+                    <div className="flex gap-2 message-2" style={{ animationDuration: '0.3s' }}>
+                      <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted">
+                        <Bot className="size-3" />
+                      </div>
+                      <div className="rounded-2xl rounded-bl-md bg-muted px-4 py-3">
+                        <div className="flex items-center gap-1">
+                          <div className="typing-dot-1 size-1.5 rounded-full bg-muted-foreground" />
+                          <div className="typing-dot-2 size-1.5 rounded-full bg-muted-foreground" />
+                          <div className="typing-dot-3 size-1.5 rounded-full bg-muted-foreground" />
+                        </div>
+                      </div>
+                    </div>
                     {/* Assistant message */}
-                    <div className="flex gap-2">
+                    <div className="message-2 flex gap-2" style={{ animationDelay: '2s' }}>
                       <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted">
                         <Bot className="size-3" />
                       </div>
@@ -204,7 +407,7 @@ export default function LandingPage() {
                 <h2 className="text-3xl font-bold">
                   Tu asistente, siempre disponible
                 </h2>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground max-w-[600px]">
                   Un chat inteligente que conoce toda la documentación de tu
                   empresa y responde al instante.
                 </p>
@@ -292,7 +495,7 @@ export default function LandingPage() {
         {/* Mockup WhatsApp */}
         <section className="py-20 bg-muted/30">
           <div className="container mx-auto px-4">
-            <div className="grid gap-12 lg:grid-cols-2 items-center">
+            <div className="grid gap-12 lg:gap-20 lg:grid-cols-2 items-center">
               {/* Mockup */}
               <div className="rounded-2xl overflow-hidden shadow-lg border">
                 {/* WhatsApp header */}

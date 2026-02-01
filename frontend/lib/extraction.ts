@@ -7,6 +7,7 @@ export async function extractText(
 ): Promise<string> {
   switch (mimeType) {
     case "text/plain":
+    case "text/markdown":
       return buffer.toString("utf-8");
 
     case "application/pdf": {
@@ -29,6 +30,7 @@ const MIME_TYPES: Record<string, string> = {
   txt: "text/plain",
   pdf: "application/pdf",
   docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  md: "text/markdown",
 };
 
 export function getMimeType(filename: string): string | null {
@@ -36,5 +38,5 @@ export function getMimeType(filename: string): string | null {
   return ext ? MIME_TYPES[ext] ?? null : null;
 }
 
-export const ALLOWED_EXTENSIONS = ["txt", "pdf", "docx"];
+export const ALLOWED_EXTENSIONS = ["txt", "pdf", "docx", "md"];
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
