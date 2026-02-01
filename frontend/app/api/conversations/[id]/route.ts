@@ -1,7 +1,23 @@
 import { getSession } from "@/lib/session";
 import { connectDB } from "@/lib/db";
-import { Conversation, Message } from "@/models";
+import { Conversation, Message, Chunk, Document } from "@/models";
 import { Types } from "mongoose";
+
+interface ChunkSource {
+  documentName: string;
+  documentId: string;
+}
+
+interface MessageWithSources {
+  _id: Types.ObjectId;
+  conversationId: Types.ObjectId;
+  role: string;
+  content: string;
+  chunksUsed: Types.ObjectId[];
+  sources?: ChunkSource[];
+  tokenCount?: number;
+  createdAt: Date;
+}
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -41,7 +57,37 @@ export async function GET(req: Request, { params }: RouteParams) {
       .sort({ createdAt: 1 })
       .lean();
 
-    return Response.json({ conversation, messages });
+    // Enriquecer mensajes del asistente con información de fuentes
+    const messagesWithSources: MessageWithSources[] = await Promise.all(
+      messages.map(async (msg) => {
+        if (msg.role === "assistant" && msg.chunksUsed && msg.chunksUsed.length > 0) {
+          // Obtener los chunks usados
+          const chunks = await Chunk.find({
+            _id: { $in: msg.chunksUsed },
+          })
+            .select("documentId")
+            .lean();
+
+          // Obtener nombres únicos de documentos
+          const documentIds = [...new Set(chunks.map((c) => c.documentId.toString()))];
+          const documents = await Document.find({
+            _id: { $in: documentIds },
+          })
+            .select("nombre")
+            .lean();
+
+          const sources: ChunkSource[] = documents.map((doc) => ({
+            documentName: doc.nombre,
+            documentId: doc._id.toString(),
+          }));
+
+          return { ...msg, sources };
+        }
+        return msg as MessageWithSources;
+      })
+    );
+
+    return Response.json({ conversation, messages: messagesWithSources });
   } catch (error) {
     console.error("Error al obtener conversación:", error);
     return Response.json(

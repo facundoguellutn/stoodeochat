@@ -8,11 +8,22 @@ import { Types } from "mongoose";
 
 const MAX_BATCH_SIZE = 2048;
 
+// Score mínimo de relevancia para incluir un chunk (0-1)
+// Nota: Un umbral muy alto (0.7+) puede filtrar chunks relevantes que usan
+// terminología diferente. Un valor de 0.5 es más permisivo pero asegura
+// que se recupere toda la información relevante.
+const MIN_RELEVANCE_SCORE = 0.5;
+
 export interface ChunkSearchResult {
   _id: Types.ObjectId;
   text: string;
   documentId: Types.ObjectId;
   score: number;
+}
+
+// Resultado enriquecido con metadata del documento
+export interface EnrichedChunkSearchResult extends ChunkSearchResult {
+  documentName: string;
 }
 
 export async function generateEmbeddings(
@@ -57,6 +68,8 @@ export async function generateEmbeddings(
 /**
  * Busca chunks similares usando MongoDB Atlas Vector Search
  * Requiere índice vectorial creado en Atlas con nombre "vector_index"
+ * 
+ * Devuelve chunks enriquecidos con metadata del documento y filtrados por relevancia
  */
 export async function searchSimilarChunks(params: {
   query: string;
@@ -64,13 +77,15 @@ export async function searchSimilarChunks(params: {
   userId: string;
   limit?: number;
   embeddingModel?: string;
-}): Promise<ChunkSearchResult[]> {
+  minScore?: number;
+}): Promise<EnrichedChunkSearchResult[]> {
   const {
     query,
     companyId,
     userId,
     limit = 5,
     embeddingModel = "text-embedding-3-small",
+    minScore = MIN_RELEVANCE_SCORE,
   } = params;
 
   await connectDB();
@@ -84,8 +99,8 @@ export async function searchSimilarChunks(params: {
     { action: "vector_search", query }
   );
 
-  // Vector search con filtro multi-tenant
-  const chunks = await Chunk.aggregate<ChunkSearchResult>([
+  // Vector search con filtro multi-tenant y lookup del documento
+  const chunks = await Chunk.aggregate<EnrichedChunkSearchResult>([
     {
       $vectorSearch: {
         index: "vector_index",
@@ -97,11 +112,38 @@ export async function searchSimilarChunks(params: {
       },
     },
     {
+      $addFields: {
+        score: { $meta: "vectorSearchScore" },
+      },
+    },
+    // Filtrar por score mínimo de relevancia
+    {
+      $match: {
+        score: { $gte: minScore },
+      },
+    },
+    // Lookup para obtener el nombre del documento
+    {
+      $lookup: {
+        from: "documents",
+        localField: "documentId",
+        foreignField: "_id",
+        as: "document",
+      },
+    },
+    {
+      $unwind: {
+        path: "$document",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
       $project: {
         _id: 1,
         text: 1,
         documentId: 1,
-        score: { $meta: "vectorSearchScore" },
+        score: 1,
+        documentName: { $ifNull: ["$document.nombre", "Documento sin nombre"] },
       },
     },
   ]);
