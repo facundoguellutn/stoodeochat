@@ -59,6 +59,9 @@ export interface IChunk {
   text: string;
   embedding: number[];
   embeddingModel: string;
+  sectionPath?: string;
+  sectionIndex?: number;
+  chunkIndex?: number;
   createdAt: Date;
 }
 

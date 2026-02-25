@@ -5,6 +5,7 @@ import { processDocument } from "@/lib/document-processor";
 
 export async function POST(request: Request) {
   try {
+    console.log("uploading document");
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
@@ -62,6 +63,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result);
   } catch (error) {
+    console.error("Error al procesar documento:", error);
     const message =
       error instanceof Error ? error.message : "Error al procesar documento";
     return NextResponse.json({ error: message }, { status: 500 });

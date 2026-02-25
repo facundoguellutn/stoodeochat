@@ -22,6 +22,9 @@ const ChunkSchema = new Schema<IChunk>({
   text: { type: String, required: true },
   embedding: { type: [Number], required: true },
   embeddingModel: { type: String, required: true },
+  sectionPath: { type: String },
+  sectionIndex: { type: Number, index: true },
+  chunkIndex: { type: Number, index: true },
   createdAt: { type: Date, default: Date.now },
 });
 

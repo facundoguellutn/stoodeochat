@@ -1,6 +1,11 @@
 import { openai } from "@ai-sdk/openai";
 import { generateText } from "ai";
-import { searchSimilarChunks, type EnrichedChunkSearchResult } from "./vectors";
+import {
+  searchSimilarChunks,
+  expandChunksWithNeighbors,
+  expandChunksWithDocumentTextFallback,
+  type EnrichedChunkSearchResult,
+} from "./vectors";
 import { logUsage } from "./costs";
 import { connectDB } from "./db";
 import { Company } from "@/models";
@@ -34,7 +39,7 @@ function buildFormattedContext(chunks: EnrichedChunkSearchResult[]): string {
   return chunks
     .map(
       (c, i) =>
-        `<documento id="${i + 1}" fuente="${c.documentName}" relevancia="${(c.score * 100).toFixed(0)}%">
+        `<documento id="${i + 1}" fuente="${c.documentName}" relevancia="${(c.score * 100).toFixed(0)}%" seccion="${c.sectionPath ?? "Sin sección"}" origen="${c.retrievalSource ?? "vector"}">
 ${c.text}
 </documento>`
     )
@@ -80,25 +85,60 @@ export async function generateRAGResponse(
   params: GenerateRAGResponseParams
 ): Promise<RAGResponse> {
   const { query, companyId, userId, maxChunks = 8 } = params;
+  const diagnosticsEnabled = process.env.RAG_DIAGNOSTICS === "1";
 
   await connectDB();
 
-  // Obtener nombre de la empresa para personalizar el prompt
-  const company = await Company.findById(companyId).select("nombre").lean();
+  // Obtener nombre y config de la empresa para personalizar el prompt
+  const company = await Company.findById(companyId).select("nombre config.embeddingModel").lean();
   const companyName = company?.nombre || "la empresa";
+  const embeddingModel = company?.config?.embeddingModel || "text-embedding-3-small";
 
   // Buscar chunks relevantes con vector search (filtrado por score >= 0.5)
   // Usamos 8 chunks por defecto para capturar suficiente contexto
-  const chunks = await searchSimilarChunks({
+  const retrievedChunks = await searchSimilarChunks({
     query,
     companyId,
     userId,
     limit: maxChunks,
+    embeddingModel,
   });
 
+  const chunks = await expandChunksWithNeighbors({
+    chunks: retrievedChunks,
+    companyId,
+    window: 1,
+    maxExpandedChunks: Math.max(maxChunks + 6, maxChunks),
+  });
+
+  const finalChunks = await expandChunksWithDocumentTextFallback({
+    chunks,
+    query,
+    companyId,
+    maxAddedChunks: 3,
+  });
+
+  if (diagnosticsEnabled) {
+    console.info(
+      "[rag-diagnostics] chat-service-context",
+      JSON.stringify({
+        query: query.slice(0, 160),
+        chunkCount: finalChunks.length,
+        chunks: finalChunks.slice(0, 8).map((c) => ({
+          id: c._id.toString(),
+          documentId: c.documentId.toString(),
+          documentName: c.documentName,
+          sectionPath: c.sectionPath ?? "sin-seccion",
+          source: c.retrievalSource ?? "vector",
+          score: Number(c.score.toFixed(3)),
+        })),
+      })
+    );
+  }
+
   // Construir contexto enriquecido con metadata de documentos
-  const formattedContext = buildFormattedContext(chunks);
-  const hasContext = chunks.length > 0;
+  const formattedContext = buildFormattedContext(finalChunks);
+  const hasContext = finalChunks.length > 0;
 
   // System prompt estructurado siguiendo OpenAI best practices
   const systemPrompt = buildSystemPrompt(companyName, formattedContext, hasContext);
@@ -123,14 +163,14 @@ export async function generateRAGResponse(
     outputTokens,
     metadata: {
       source: "chat-service",
-      chunksUsed: chunks.length,
-      sources: chunks.map(c => c.documentName),
+      chunksUsed: finalChunks.length,
+      sources: finalChunks.map(c => c.documentName),
     },
   });
 
   return {
     text: result.text,
-    chunks,
+    chunks: finalChunks,
     usage: {
       inputTokens,
       outputTokens,
